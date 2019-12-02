@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <SPI.h>
 #include <WiFiNINA.h>
-#include <WiFiUdp.h>
 
 /********** Temp Sensor Values **********/
 
@@ -38,15 +37,23 @@ float temp;
 
 int status = WL_IDLE_STATUS;
 
-char ssid[] = /* REDACTED */;   // REMEMBER TO REMOVE PERSONAL INFO BEFORE PUSH
-char pass[] = /* REDACTED */;   // !!!
+char ssid[] = ""; /* REDACTED */          // REMEMBER TO REMOVE PERSONAL INFO BEFORE PUSH
+char pass[] = ""; /* REDACTED */          // !!!
+
+IPAddress server(192, 168, 1, 123);    // Private IP Address.
+unsigned int destinationPort = 10000;  // Destination Port number.
 
 unsigned int localPort = 2390;
+
+// Initialize the client library.
+WiFiClient client;
 
 /* A string to send to the server. */
 char MessageBuffer[] = "";
 
-WiFiUDP Udp;
+/* A string to hold a username for this Nano. */
+char username[] = "";
+
 
 
 /**********************************************************************
@@ -66,7 +73,7 @@ void setup() {
       Serial.println("Communication with WiFi module failed!");
 
       /* Then do NOT continue. */
-      while (true);
+      exit(-1);
     }
 
 
@@ -94,9 +101,29 @@ void setup() {
 
     Serial.println("Connected to wifi!\n");
     printWifiStatus();
+
+    Serial.println("\nConnecting to server...");
+
+    if (client.connect(server, destinationPort)) {
+
+      Serial.println("Connected!");
+      
+    }
+
+    else {
+
+      Serial.println("Could not connect! Quitting program...");
+
+      exit(-1);
+      
+    }
+
   
     Serial.println("\nStarting transmission to server...");
-    Udp.begin(localPort);
+
+    
+    /* Sends the username to the server for this connection. */
+    client.print(username);
     
 }
 
@@ -108,23 +135,23 @@ void setup() {
  *********************************************************************/
 void loop() {
 
+    /* Check that we are still connected to the server. */
+    if(!client.connected()) {
+      Serial.println("\nWarning! Connection with server was lost!");
+      exit(-1);
+    }
+
     /* Get the current temp from the sensor with 2 decimal places. */
     temp = getTemp();
-    sprintf(MessageBuffer, "%.2f", temp);
+    sprintf(MessageBuffer, "NANO %.2f", temp);
 
     
     /* Send a message to the computer with the server. */
-    IPAddress destinationIP( /* REDACTED */ );  // Address of target machine  (Private IP)
-    unsigned int destinationPort = 10000;      // Port to send to
-    
-    Udp.beginPacket(destinationIP, destinationPort);
-
-    Udp.write(MessageBuffer);
-    Udp.endPacket();
+    client.print(MessageBuffer);
 
 
     /* Delay between loops. */
-    delay(1000);
+    delay(2000);  // 2 seconds.
 }
 
 
