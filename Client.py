@@ -1,3 +1,4 @@
+#Client GUI
 import tkinter
 import socket
 import select
@@ -8,8 +9,8 @@ from tkinter import messagebox
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def connectServer():
-    servIP = serverHostText.get()
-    port = portText.get()
+    servIP = ipEntry.get()
+    port = portEntry.get()
 
     if len(servIP) > 0 and len(port):
         serverAddress = (str(servIP), int(port))
@@ -33,30 +34,14 @@ def disconnectServer():
         messagebox.showerror("ERROR", "Failure to disconnect from central server")
         
 def getData():
-    try:
-        option = getOps.get()
-        
-        if rangeOps == "RANGE":
-            start = startDate.get()
-            end = endDate.get()
-        elif rangeOps == "SINGLE DAY":
-            start = startDate.get()
-        
-        msg = "GET " + option
-        
-        if option == "MAX":
-            msg = msg + " " + start
-        elif option == "AVG":
-            msg = msg + " " + start
-        elif option == "MIN":
-            msg = msg + " " + start
-            
-    except:
-        messagebox.showerror("ERROR", "Failure to retrieve data")
+    result.insert(tkinter.INSERT, "-> GET\n")
+    
+def clearData():
+    result.delete(1.0, tkinter.END)
         
 gui = tkinter.Tk()
 gui.title("NANO Temp Client")
-gui.geometry("500x500")
+gui.geometry("550x450")
 
 ##################### CONNECTION #####################
 cLabel = tkinter.Label(gui, text="Connection", font=("-weighted bold", 13))
@@ -79,7 +64,7 @@ disButton['state'] = tkinter.DISABLED
 disButton.grid(column=3, row=1, pady=10, padx=5)
 
 gLabel = tkinter.Label(gui, text="Get", font=("-weighted bold", 13))
-gLabel.grid(column=0, row=3, pady=15, padx=10, sticky='W', columnspan=6)
+gLabel.grid(column=0, row=3, pady=10, padx=10, sticky='W', columnspan=6)
 
 dateLabel = tkinter.Label(gui, text="Timeframe: ")
 dateLabel.grid(column=0, row=4)
@@ -95,7 +80,41 @@ tempOps['values'] = ("Celsius", "Fahrenheit")
 tempOps.current(0)
 tempOps.grid(column=3, row=4)
 
-choicesLabel = tkinter.Label(gui, "Choose what to Display: ")
-choicesLabel.grid(column=0, row=5)
+optionLabel = tkinter.Label(gui, text="Choose what to Display: ")
+optionLabel.grid(column=0, row=5)
+allV = tkinter.Variable()
+allOp = tkinter.Checkbutton(gui, text='All', variable=allV, height=2)
+allOp.grid(column=1, row=5)
+maxV = tkinter.Variable()
+maxOp = tkinter.Checkbutton(gui, text='MAX', variable=maxV, height=2)
+maxOp.grid(column=2, row=5)
+avgV = tkinter.Variable()
+avgOp = tkinter.Checkbutton(gui, text='AVG', variable=avgV, height=2)
+avgOp.grid(column=3, row=5)
+minV = tkinter.Variable()
+minOp = tkinter.Checkbutton(gui, text='MIN', variable=minV, height=2)
+minOp.grid(column=4, row=5)
+
+startLabel = tkinter.Label(gui, text="Start Date: ")
+startLabel.grid(column=0, row=6)
+startEntry = tkinter.Entry(gui, width=15)
+startEntry.insert(0, "MM/DD/YYYY")
+startEntry.grid(column=1, row=6)
+endLabel = tkinter.Label(gui, text="End Date: ")
+endLabel.grid(column=2, row=6)
+endEntry = tkinter.Entry(gui, width=15)
+endEntry.insert(0, "MM/DD/YYYY")
+endEntry.grid(column=3, row=6)
+
+rLabel = tkinter.Label(gui, text="Results", font=('-weighted bold', 13))
+rLabel.grid(column=0, row=7, pady=10, padx=10, sticky='W')
+
+result = scrolledtext.ScrolledText(gui, width=55, height=8)
+result.grid(column=0, row=8, padx=30, columnspan=5, rowspan=4)
+
+clearButton = tkinter.Button(gui, text="Clear", width=10, command=clearData)
+clearButton.grid(column=1, row=12, pady=5, padx=10)
+searchButton = tkinter.Button(gui, text="Search", width=10, command=getData)
+searchButton.grid(column=2, row=12, pady=5, padx=10)
 
 gui.mainloop()
