@@ -80,7 +80,7 @@ tempOps['values'] = ("Celsius", "Fahrenheit")
 tempOps.current(0)
 tempOps.grid(column=3, row=4)
 
-optionLabel = tkinter.Label(gui, text="Choose what to Display: ")
+optionLabel = tkinter.Label(gui, text="Data Options: ")
 optionLabel.grid(column=0, row=5)
 allV = tkinter.Variable()
 allOp = tkinter.Checkbutton(gui, text='All', variable=allV, height=2)
