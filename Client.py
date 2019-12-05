@@ -8,6 +8,7 @@ from tkinter import messagebox
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+#Connect to the remote server
 def connectServer():
     servIP = ipEntry.get()
     port = portEntry.get()
@@ -22,6 +23,7 @@ def connectServer():
     else:
         messagebox.showerror("Invalid Input", "Please fill in hostname and port number")
         
+#Disconnect from the server
 def disconnectServer():
     try:
         msg = "QUIT"
@@ -33,12 +35,54 @@ def disconnectServer():
     except:
         messagebox.showerror("ERROR", "Failure to disconnect from central server")
         
+#Verify that dates are somewhat valid
+def verifyDate(date):
+    date = date.split("/")
+    try:
+        if len(date) == 3:
+            if int(date[0]) in range(1, 13) and int(date[1]) in range(1, 32)\
+            and int(date[2]) in range(2018, 2023):
+                return True
+        return False
+    except:
+        return False
+
+#Sent relavant information to the server
+#Display the data returned
 def getData():
-    result.insert(tkinter.INSERT, "-> GET\n")
+    #Begin constructing the message to send to the server
+    msg = "GET " + dateOps.get().upper()
     
+    #Add appropriate dates depending on date range
+    if dateOps.get().upper() == "SINGLE_DAY" and verifyDate(startEntry.get()):
+        msg = msg + " " + startEntry.get()
+    elif dateOps.get().upper() == "RANGE" and verifyDate(startEntry.get())\
+    and verifyDate(endEntry.get()):
+        msg = msg + " " + startEntry.get() + " " + endEntry.get()
+        
+    #Add data options (if none selected then ALL)
+    if dateOps.get().upper() == "SINGLE_DAY" or dateOps.get().upper() == "RANGE":
+        i = ""
+        if allV.get():
+            i = i + " ALL"
+        if maxV.get():
+            i = i + " MAX"
+        if avgV.get():
+            i = i + " AVG"
+        if minV.get():
+            i = i + " MIN"
+        if len(i) == 0:
+            i = i + " ALL"
+        msg = msg + i
+    
+    sock.sendall(msg.encode())
+    result.insert(tkinter.INSERT, "-> " + msg + "\n")
+
+#Clear the output scroll box
 def clearData():
     result.delete(1.0, tkinter.END)
-        
+
+#Generates the GUI window        
 gui = tkinter.Tk()
 gui.title("NANO Temp Client")
 gui.geometry("550x450")
@@ -47,32 +91,39 @@ gui.geometry("550x450")
 cLabel = tkinter.Label(gui, text="Connection", font=("-weighted bold", 13))
 cLabel.grid(column=0, row=0, padx=10, sticky='W',columnspan=6)
 
+#Gets IP adddress of server
 ipLabel = tkinter.Label(gui, text="Server IP Address: ")
 ipLabel.grid(column=0, row=1)
 ipEntry = tkinter.Entry(gui, width=20)
 ipEntry.grid(column=1, row=1, sticky='W')
 
+#Gets port number for server connection
 portLabel = tkinter.Label(gui, text="Server Port: ")
 portLabel.grid(column=0, row=2)
 portEntry = tkinter.Entry(gui, width=10)
 portEntry.grid(column=1, row=2, sticky='W')
 
+#Connect / Disconnect buttons
 connButton = tkinter.Button(gui, text='Connect', width=10, command=connectServer)
 connButton.grid(column=2, row=1, pady=10, padx=5)
 disButton = tkinter.Button(gui, text='Disconnect', width=10, command=disconnectServer)
 disButton['state'] = tkinter.DISABLED
 disButton.grid(column=3, row=1, pady=10, padx=5)
 
+##################### GET #####################
+
 gLabel = tkinter.Label(gui, text="Get", font=("-weighted bold", 13))
 gLabel.grid(column=0, row=3, pady=10, padx=10, sticky='W', columnspan=6)
 
+#Allows the user to select the timeframe for which to search
 dateLabel = tkinter.Label(gui, text="Timeframe: ")
 dateLabel.grid(column=0, row=4)
 dateOps = ttk.Combobox(gui, width=10)
-dateOps['values'] = ("Latest", "Single Day", "Range")
+dateOps['values'] = ("Latest", "Single_Day", "Range")
 dateOps.current(0)
 dateOps.grid(column=1, row=4)
 
+#Allows the user to choose between temperature units
 tempTypeLabel = tkinter.Label(gui, text="Temp Type: ")
 tempTypeLabel.grid(column=2, row=4, padx=10)
 tempOps = ttk.Combobox(gui, width=10)
@@ -80,21 +131,23 @@ tempOps['values'] = ("Celsius", "Fahrenheit")
 tempOps.current(0)
 tempOps.grid(column=3, row=4)
 
+#Allows the user to select the calculated data to be displayed
 optionLabel = tkinter.Label(gui, text="Data Options: ")
 optionLabel.grid(column=0, row=5)
-allV = tkinter.Variable()
+allV = tkinter.BooleanVar()
 allOp = tkinter.Checkbutton(gui, text='All', variable=allV, height=2)
 allOp.grid(column=1, row=5)
-maxV = tkinter.Variable()
+maxV = tkinter.BooleanVar()
 maxOp = tkinter.Checkbutton(gui, text='MAX', variable=maxV, height=2)
 maxOp.grid(column=2, row=5)
-avgV = tkinter.Variable()
+avgV = tkinter.BooleanVar()
 avgOp = tkinter.Checkbutton(gui, text='AVG', variable=avgV, height=2)
 avgOp.grid(column=3, row=5)
-minV = tkinter.Variable()
+minV = tkinter.BooleanVar()
 minOp = tkinter.Checkbutton(gui, text='MIN', variable=minV, height=2)
 minOp.grid(column=4, row=5)
 
+#The starting and ending dates to be searched for data
 startLabel = tkinter.Label(gui, text="Start Date: ")
 startLabel.grid(column=0, row=6)
 startEntry = tkinter.Entry(gui, width=15)
@@ -106,14 +159,20 @@ endEntry = tkinter.Entry(gui, width=15)
 endEntry.insert(0, "MM/DD/YYYY")
 endEntry.grid(column=3, row=6)
 
+##################### Results #####################
+
 rLabel = tkinter.Label(gui, text="Results", font=('-weighted bold', 13))
 rLabel.grid(column=0, row=7, pady=10, padx=10, sticky='W')
 
+#Area to display the information retrieved from the server
 result = scrolledtext.ScrolledText(gui, width=55, height=8)
 result.grid(column=0, row=8, padx=30, columnspan=5, rowspan=4)
 
+#Clears the field of previously collected data
 clearButton = tkinter.Button(gui, text="Clear", width=10, command=clearData)
 clearButton.grid(column=1, row=12, pady=5, padx=10)
+
+#Calls the function to send the selections to the server to retrieve data
 searchButton = tkinter.Button(gui, text="Search", width=10, command=getData)
 searchButton.grid(column=2, row=12, pady=5, padx=10)
 
