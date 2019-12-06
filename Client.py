@@ -80,12 +80,15 @@ def getData():
         
         #Split the collected data
         dataArray = totalData[0].split(";")
-        if dataArray[len(dataArray) - 1] == '':
+        if len(dataArray) > 0 and dataArray[len(dataArray) - 1] == '':
             dataArray.pop(len(dataArray) - 1)
             
         #Display data on GUI
-        for info in dataArray:
-            result.insert(tkinter.INSERT, info + "\n")
+        if len(dataArray) == 0:
+            result.insert(tkinter.INSERT, "No data for this request\n")
+        else:
+            for info in dataArray:
+                result.insert(tkinter.INSERT, info + "\n")
 
     except ValueError:
         messagebox.showerror("REQUEST ERROR", """Ensure that:
