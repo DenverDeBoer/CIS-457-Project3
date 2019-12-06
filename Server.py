@@ -105,7 +105,6 @@ def clientThread(connection):
                             x += 1
 
                         if command[3] == "ALL":
-                            print("MAX: " + str(max(singleDay)) + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + str(min(singleDay)))
                             connection.sendall(("MAX: " + str(max(singleDay)) + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + str(min(singleDay))).encode())
 
                         elif command[3] == "MAX":
