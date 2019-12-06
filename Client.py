@@ -55,16 +55,14 @@ def getData():
     #Add appropriate dates depending on date range
     try:
         if dateOps.get().upper() == "SINGLE_DAY" and verifyDate(startEntry.get()):
-            msg = "GET " + dateOps.get().upper() + " " + startEntry.get()
+            msg = "GET " + dateOps.get().upper() + " " + startEntry.get() + " " + dataOps.get()
         elif dateOps.get().upper() == "RANGE" and verifyDate(startEntry.get())\
         and verifyDate(endEntry.get()):
-            msg = "GET " + dateOps.get().upper() + " " + startEntry.get() + " " + endEntry.get()
+            msg = "GET " + dateOps.get().upper() + " " + startEntry.get() + " " + endEntry.get() + " " + dataOps.get()
         elif dateOps.get().upper() == "LATEST":
             msg = "GET " + dateOps.get().upper()
         else:
             raise ValueError
-
-        msg = msg + " " + dataOps.get()
         
         sock.sendall(msg.encode())
         result.insert(tkinter.INSERT, "-> " + msg + "\n")
