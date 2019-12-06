@@ -79,7 +79,7 @@ def clientThread(connection):
                 tempList = []
                 timeList = []
                 x = 0
-                while x < len(dataList):
+                while x < (len(dataList)-1):
                     dateList.append(dataList[x])
                     timeList.append(dataList[x+1])
                     tempList.append(dataList[x+2])
@@ -90,6 +90,7 @@ def clientThread(connection):
 
                     # Returns the latest temperature.
                     if command[1] == "LATEST":
+                        print(dataList[len(dataList) - 2])
                         connection.sendall(dataList[len(dataList) - 2].encode())
 
                     # Returns values based on requested day.
@@ -103,17 +104,17 @@ def clientThread(connection):
                                 singleDay.append(dataList[x+2])
                             x += 1
 
-                        if command[3] == "ALL":
-                            connection.sendall(("MAX: " + max(singleDay) + ";AVG: " + mean(singleDay) + ";MIN: " + min(singleDay)).encode())
+                        if command[4] == "ALL":
+                            connection.sendall(("MAX: " + format(max(singleDay), '.2f') + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + format(min(singleDay), '.2f')).encode())
 
-                        elif command[3] == "MAX":
-                            connection.sendall(("MAX: " + max(singleDay)).encode())
+                        elif command[4] == "MAX":
+                            connection.sendall(("MAX: " + format(max(singleDay), '.2f')).encode())
 
-                        elif command[3] == "AVG":
-                            connection.sendall(("AVG: " + mean(singleDay)).encode())
+                        elif command[4] == "AVG":
+                            connection.sendall(( "AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) ).encode())
 
-                        else: # command[3] == "MIN"
-                            connection.sendall(("MIN: " + min(singleDay)).encode())
+                        else: # command[4] == "MIN"
+                            connection.sendall(("MIN: " + format(min(singleDay), '.2f')).encode())
 
 
                     else: # command[1] == "RANGE"
@@ -123,20 +124,20 @@ def clientThread(connection):
                         x = 0
                         for day in dataList:
                             if command[2] <= day <= command[3]:
-                                singleDay.append(dataList[x+2])
+                                singleDay.append(float(dataList[x+2]))
                             x += 1
 
                         if command[4] == "ALL":
-                            connection.sendall(("MAX: " + max(singleDay) + ";AVG: " + mean(singleDay) + ";MIN: " + min(singleDay)).encode())
+                            connection.sendall(("MAX: " + format(max(singleDay), '.2f') + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + format(min(singleDay), '.2f')).encode())
 
                         elif command[4] == "MAX":
-                            connection.sendall(("MAX: " + max(singleDay)).encode())
+                            connection.sendall(("MAX: " + format(max(singleDay), '.2f')).encode())
 
                         elif command[4] == "AVG":
-                            connection.sendall(("AVG: " + mean(singleDay)).encode())
+                            connection.sendall(( "AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) ).encode())
 
                         else: # command[4] == "MIN"
-                            connection.sendall(("MIN: " + min(singleDay)).encode())
+                            connection.sendall(("MIN: " + format(min(singleDay), '.2f')).encode())
 
             else:
                 break
@@ -149,13 +150,15 @@ while True:
     print("Waiting for a connection...\n")
     connection, clientAddress = sock.accept()
 
-    user = connection.recv(1024).decode()
-    user = user.split(" ")
+    typeUser = connection.recv(1024).decode()
+    typeUser = typeUser.split(" ")
 
-    if user[0] == "NANO":
+    if typeUser[0] == "NANO":
+        # print("A NANO!")
         _thread.start_new_thread(nanoThread, (connection,))
 
-    if user[0] == "CLIENT":
+    if typeUser[0] == "CLIENT":
+        # print("A CLIENT!")
         _thread.start_new_thread(clientThread, (connection,))
 
 sock.close()
