@@ -80,7 +80,7 @@ def getData():
         
         #Split the collected data
         dataArray = totalData[0].split(";")
-        if len(dataArray) > 0 and dataArray[len(dataArray) - 1] == '':
+        if dataArray[len(dataArray) - 1] == '':
             dataArray.pop(len(dataArray) - 1)
             
         #Display data on GUI
