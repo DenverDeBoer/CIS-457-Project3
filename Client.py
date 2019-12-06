@@ -41,7 +41,7 @@ def verifyDate(date):
     try:
         if len(date) == 3:
             if int(date[0]) in range(1, 13) and int(date[1]) in range(1, 32)\
-            and int(date[2]) in range(2018, 2023):
+            and int(date[2]) in range(2000, 3000):
                 return True
         return False
     except:
