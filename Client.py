@@ -176,7 +176,7 @@ tempOps.grid(column=3, row=4)
 optionLabel = tkinter.Label(gui, text="Data Options: ")
 optionLabel.grid(column=0, row=5)
 dataOps = ttk.Combobox(gui, width=10)
-dataOps['values'] = ("All", "AVG", "MAX", "MIN")
+dataOps['values'] = ("ALL", "AVG", "MAX", "MIN")
 dataOps.current(0)
 dataOps.grid(column=1, row=5, pady=10)
 
