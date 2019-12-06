@@ -101,20 +101,20 @@ def clientThread(connection):
                         x = 0
                         for day in dataList:
                             if day == command[2]:
-                                singleDay.append(dataList[x+2])
+                                singleDay.append(float(dataList[x+2]))
                             x += 1
 
-                        if command[4] == "ALL":
-                            connection.sendall(("MAX: " + format(max(singleDay), '.2f') + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + format(min(singleDay), '.2f')).encode())
+                        if command[3] == "ALL":
+                            connection.sendall(("MAX: " + str(max(singleDay)) + ";AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) + ";MIN: " + str(min(singleDay))).encode())
 
-                        elif command[4] == "MAX":
-                            connection.sendall(("MAX: " + format(max(singleDay), '.2f')).encode())
+                        elif command[3] == "MAX":
+                            connection.sendall(("MAX: " + str(max(singleDay))).encode())
 
-                        elif command[4] == "AVG":
-                            connection.sendall(( "AVG: " + str(format((sum(singleDay) / len(singleDay)), '.2f')) ).encode())
+                        elif command[3] == "AVG":
+                            connection.sendall(( "AVG: " + format((sum(singleDay) / len(singleDay)), '.2f') ).encode())
 
-                        else: # command[4] == "MIN"
-                            connection.sendall(("MIN: " + format(min(singleDay), '.2f')).encode())
+                        else: # command[3] == "MIN"
+                            connection.sendall(("MIN: " + str(min(singleDay))).encode())
 
 
                     else: # command[1] == "RANGE"
