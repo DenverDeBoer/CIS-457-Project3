@@ -92,6 +92,11 @@ def getData():
                     result.insert(tkinter.INSERT, info + "\n")
                 elif tempOps.get().upper() == "FAHRENHEIT":
                     con = info.split(" ")
+                    if len(con) < 2:
+                        test = ""
+                        for x in con:
+                            test += x
+                        messagebox.showerror("INDEXING", test)
                     con[1] = format((float(con[1]) * (9.0/5.0) + 32), '.2f')
                     result.insert(tkinter.INSERT, con[0] + " " + con[1] + " " + "\n")
 
