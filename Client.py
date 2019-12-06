@@ -37,11 +37,11 @@ def disconnectServer():
         
 #Verify that dates are somewhat valid
 def verifyDate(date):
-    date = date.split("/")
+    date = date.split("-")
     try:
         if len(date) == 3:
-            if int(date[0]) in range(1, 13) and int(date[1]) in range(1, 32)\
-            and int(date[2]) in range(2000, 3000):
+            if int(date[0]) in range(2000, 3000) and int(date[1]) in range(1, 32)\
+            and int(date[2]) in range(1, 13):
                 return True
         return False
     except:
@@ -124,10 +124,10 @@ portEntry.grid(column=1, row=2, sticky='W')
 
 #Connect / Disconnect buttons
 connButton = tkinter.Button(gui, text='Connect', width=10, command=connectServer)
-connButton.grid(column=2, row=1, pady=10, padx=5)
+connButton.grid(column=2, row=1, pady=10, padx=2)
 disButton = tkinter.Button(gui, text='Disconnect', width=10, command=disconnectServer)
 disButton['state'] = tkinter.DISABLED
-disButton.grid(column=3, row=1, pady=10, padx=5)
+disButton.grid(column=3, row=1, pady=10, padx=2)
 
 ##################### GET #####################
 
@@ -144,7 +144,7 @@ dateOps.grid(column=1, row=4)
 
 #Allows the user to choose between temperature units
 tempTypeLabel = tkinter.Label(gui, text="Temp Type: ")
-tempTypeLabel.grid(column=2, row=4, padx=10)
+tempTypeLabel.grid(column=2, row=4, padx=5)
 tempOps = ttk.Combobox(gui, width=10)
 tempOps['values'] = ("Celsius", "Fahrenheit")
 tempOps.current(0)
@@ -162,12 +162,12 @@ dataOps.grid(column=1, row=5, pady=10)
 startLabel = tkinter.Label(gui, text="Start Date: ")
 startLabel.grid(column=0, row=6)
 startEntry = tkinter.Entry(gui, width=15)
-startEntry.insert(0, "MM/DD/YYYY")
+startEntry.insert(0, "YYYY-DD-MM")
 startEntry.grid(column=1, row=6)
 endLabel = tkinter.Label(gui, text="End Date: ")
 endLabel.grid(column=2, row=6)
 endEntry = tkinter.Entry(gui, width=15)
-endEntry.insert(0, "MM/DD/YYYY")
+endEntry.insert(0, "YYYY-DD-MM")
 endEntry.grid(column=3, row=6)
 
 ##################### Results #####################
