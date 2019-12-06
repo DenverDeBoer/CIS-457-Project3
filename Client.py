@@ -42,8 +42,8 @@ def verifyDate(date):
     date = date.split("-")
     try:
         if len(date) == 3:
-            if int(date[0]) in range(2000, 3000) and int(date[1]) in range(1, 32)\
-            and int(date[2]) in range(1, 13):
+            if int(date[0]) in range(2000, 3000) and int(date[1]) in range(1, 13)\
+            and int(date[2]) in range(1, 32):
                 return True
         return False
     except:
@@ -66,7 +66,7 @@ def getData():
 
         msg = msg + " " + dataOps.get()
         
-        #sock.sendall(msg.encode())
+        sock.sendall(msg.encode())
         result.insert(tkinter.INSERT, "-> " + msg + "\n")
         
         
@@ -90,7 +90,12 @@ def getData():
             result.insert(tkinter.INSERT, "No data for this request\n")
         else:
             for info in dataArray:
-                result.insert(tkinter.INSERT, info + "\n")
+                if tempOps.get().upper() == "CELSIUS":
+                    result.insert(tkinter.INSERT, info + "\n")
+                elif tempOps.get().upper() == "FAHRENHEIT":
+                    con = info.split(" ")
+                    con[3] = format((float(con[3]) * (9.0/5.0) + 32), '.2f')
+                    result.insert(tkinter.INSERT, con + "\n")
 
     except ValueError:
         messagebox.showerror("REQUEST ERROR", """Ensure that:
@@ -105,7 +110,14 @@ def clearData():
 
 #Provide helpful information to the user
 def helpInfo():
-    messagebox.showinfo("HELP", "HELP!!!!!!!!!")
+    messagebox.showinfo("Welcome to NanoTemp", """Display data from an Arduino Nano with temp sensor
+    Server IP Address -- ip address of the remote server
+    Server port -- the port number the server is listening on
+    Timeframe -- how much data to process
+    Temp Type -- the units of temperature to display the data in
+    Start Date* -- the first date in the range or the single date
+    End Date* -- the last date in the range
+    \n*DATE FORMAT: YYYY-MM-DD""")
 
 #Generates the GUI window        
 gui = tkinter.Tk()
@@ -172,12 +184,12 @@ dataOps.grid(column=1, row=5, pady=10)
 startLabel = tkinter.Label(gui, text="Start Date: ")
 startLabel.grid(column=0, row=6)
 startEntry = tkinter.Entry(gui, width=15)
-startEntry.insert(0, "YYYY-DD-MM")
+startEntry.insert(0, "YYYY-MM-DD")
 startEntry.grid(column=1, row=6)
 endLabel = tkinter.Label(gui, text="End Date: ")
 endLabel.grid(column=2, row=6)
 endEntry = tkinter.Entry(gui, width=15)
-endEntry.insert(0, "YYYY-DD-MM")
+endEntry.insert(0, "YYYY-MM-DD")
 endEntry.grid(column=3, row=6)
 
 ##################### Results #####################
