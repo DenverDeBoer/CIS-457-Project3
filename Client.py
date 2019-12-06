@@ -50,33 +50,28 @@ def verifyDate(date):
 #Sent relavant information to the server
 #Display the data returned
 def getData():
-    #Begin constructing the message to send to the server
-    msg = "GET " + dateOps.get().upper()
-    
     #Add appropriate dates depending on date range
-    if dateOps.get().upper() == "SINGLE_DAY" and verifyDate(startEntry.get()):
-        msg = msg + " " + startEntry.get()
-    elif dateOps.get().upper() == "RANGE" and verifyDate(startEntry.get())\
-    and verifyDate(endEntry.get()):
-        msg = msg + " " + startEntry.get() + " " + endEntry.get()
+    try:
+        if dateOps.get().upper() == "SINGLE_DAY" and verifyDate(startEntry.get()):
+            msg = "GET " + dateOps.get().upper() + " " + startEntry.get()
+        elif dateOps.get().upper() == "RANGE" and verifyDate(startEntry.get())\
+        and verifyDate(endEntry.get()):
+            msg = "GET " + dateOps.get().upper() + " " + startEntry.get() + " " + endEntry.get()
+        elif dateOps.get().upper() == "LATEST":
+            msg = "GET " + dateOps.get().upper()
+        else:
+            raise ValueError
+
+        msg = msg + " " + dataOps.get()
         
-    #Add data options (if none selected then ALL)
-    if dateOps.get().upper() == "SINGLE_DAY" or dateOps.get().upper() == "RANGE":
-        i = ""
-        if allV.get():
-            i = i + " ALL"
-        if maxV.get():
-            i = i + " MAX"
-        if avgV.get():
-            i = i + " AVG"
-        if minV.get():
-            i = i + " MIN"
-        if len(i) == 0:
-            i = i + " ALL"
-        msg = msg + i
-    
-    sock.sendall(msg.encode())
-    result.insert(tkinter.INSERT, "-> " + msg + "\n")
+        #sock.sendall(msg.encode())
+        result.insert(tkinter.INSERT, "-> " + msg + "\n")
+    except ValueError:
+        messagebox.showerror("REQUEST ERROR", """Ensure that:
+            Connection is established
+            IP address and port number is correct
+            Timeframe and data options are correct
+            Dates are valid for the program""")
 
 #Clear the output scroll box
 def clearData():
@@ -134,18 +129,10 @@ tempOps.grid(column=3, row=4)
 #Allows the user to select the calculated data to be displayed
 optionLabel = tkinter.Label(gui, text="Data Options: ")
 optionLabel.grid(column=0, row=5)
-allV = tkinter.BooleanVar()
-allOp = tkinter.Checkbutton(gui, text='All', variable=allV, height=2)
-allOp.grid(column=1, row=5)
-maxV = tkinter.BooleanVar()
-maxOp = tkinter.Checkbutton(gui, text='MAX', variable=maxV, height=2)
-maxOp.grid(column=2, row=5)
-avgV = tkinter.BooleanVar()
-avgOp = tkinter.Checkbutton(gui, text='AVG', variable=avgV, height=2)
-avgOp.grid(column=3, row=5)
-minV = tkinter.BooleanVar()
-minOp = tkinter.Checkbutton(gui, text='MIN', variable=minV, height=2)
-minOp.grid(column=4, row=5)
+dataOps = ttk.Combobox(gui, width=10)
+dataOps['values'] = ("All", "AVG", "MAX", "MIN")
+dataOps.current(0)
+dataOps.grid(column=1, row=5, pady=10)
 
 #The starting and ending dates to be searched for data
 startLabel = tkinter.Label(gui, text="Start Date: ")
