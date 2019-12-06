@@ -8,9 +8,10 @@
 
 import socket
 import _thread
-
+# from __future__ import division
 from datetime import date
 from datetime import datetime
+from statistics import mean
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -22,16 +23,12 @@ sock.bind(serverAddress)
 sock.listen(1)
 
 
-def clientThread(connection):
+# Thread for the Nano device.
+def nanoThread(connection):
     # Tells the user the connection is successful.
     try:
-
-        # Gets the user that connected and add to user table
-        user = connection.recv(1024).decode()
-        user = user.split(" ")
-
         print("Connection with ", clientAddress)
-        print("User: ", user[0])
+        # print("User: ", user[0])
 
         # Listens for the selected input from the client.
         while True:
@@ -56,13 +53,110 @@ def clientThread(connection):
         print("Connection terminated!")
 
 
+# Thread for the client.
+def clientThread(connection):
+    # Tells the user the connection is successful.
+    try:
+        print("Connection with ", clientAddress)
+
+        # Listens for the selected input from the client.
+        while True:
+            data = connection.recv(1024).decode()
+            command = data.split(" ")
+            print("\nReceived: %s" % data)
+
+            if data:
+
+                # Read in the data file.
+                with open("data.txt", "r") as myfile:
+                    stringData = str(myfile.readlines()[0])
+
+                dataList = stringData.split(" ")
+                # print(dataList)
+
+                # Store all of the dates, times, and temps in their own lists (does this every request).
+                dateList = []
+                tempList = []
+                timeList = []
+                x = 0
+                while x < len(dataList):
+                    dateList.append(dataList[x])
+                    timeList.append(dataList[x+1])
+                    tempList.append(dataList[x+2])
+                    x += 3
+
+                # Gets the data stored.
+                if command[0] == "GET":
+
+                    # Returns the latest temperature.
+                    if command[1] == "LATEST":
+                        connection.sendall(dataList[len(dataList) - 2].encode())
+
+                    # Returns values based on requested day.
+                    elif command[1] == "SINGLE_DAY":
+
+                        # Find items on the requested day.
+                        singleDay = []
+                        x = 0
+                        for day in dataList:
+                            if day == command[2]:
+                                singleDay.append(dataList[x+2])
+                            x += 1
+
+                        if command[3] == "ALL":
+                            connection.sendall(("MAX: " + max(singleDay) + ";AVG: " + mean(singleDay) + ";MIN: " + min(singleDay)).encode())
+
+                        elif command[3] == "MAX":
+                            connection.sendall(("MAX: " + max(singleDay)).encode())
+
+                        elif command[3] == "AVG":
+                            connection.sendall(("AVG: " + mean(singleDay)).encode())
+
+                        else: # command[3] == "MIN"
+                            connection.sendall(("MIN: " + min(singleDay)).encode())
+
+
+                    else: # command[1] == "RANGE"
+
+                        # Find items on the requested day.
+                        singleDay = []
+                        x = 0
+                        for day in dataList:
+                            if command[2] <= day <= command[3]:
+                                singleDay.append(dataList[x+2])
+                            x += 1
+
+                        if command[4] == "ALL":
+                            connection.sendall(("MAX: " + max(singleDay) + ";AVG: " + mean(singleDay) + ";MIN: " + min(singleDay)).encode())
+
+                        elif command[4] == "MAX":
+                            connection.sendall(("MAX: " + max(singleDay)).encode())
+
+                        elif command[4] == "AVG":
+                            connection.sendall(("AVG: " + mean(singleDay)).encode())
+
+                        else: # command[4] == "MIN"
+                            connection.sendall(("MIN: " + min(singleDay)).encode())
+
+            else:
+                break
+    finally:
+        print("Connection terminated!")
+
+
 # Starts the connection process with the client.
 while True:
     print("Waiting for a connection...\n")
     connection, clientAddress = sock.accept()
-    _thread.start_new_thread(clientThread, (connection,))
+
+    user = connection.recv(1024).decode()
+    user = user.split(" ")
+
+    if user[0] == "NANO":
+        _thread.start_new_thread(nanoThread, (connection,))
+
+    if user[0] == "CLIENT":
+        _thread.start_new_thread(clientThread, (connection,))
 
 sock.close()
-
-
 
