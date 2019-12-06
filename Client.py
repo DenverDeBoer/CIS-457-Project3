@@ -66,6 +66,27 @@ def getData():
         
         #sock.sendall(msg.encode())
         result.insert(tkinter.INSERT, "-> " + msg + "\n")
+        
+        
+        #Receiving data from server
+        totalData = []
+        while True:
+            ready = select.select([sock], [], [], 2)
+            if (ready[0]):
+                data = sock.recv(1024).decode()
+            else:
+                break
+            totalData.append(data)
+        
+        #Split the collected data
+        dataArray = totalData[0].split(";")
+        if dataArray[len(dataArray) - 1] == '':
+            dataArray.pop(len(dataArray) - 1)
+            
+        #Display data on GUI
+        for info in dataArray:
+            result.insert(tkinter.INSERT, info + "\n")
+
     except ValueError:
         messagebox.showerror("REQUEST ERROR", """Ensure that:
             Connection is established
