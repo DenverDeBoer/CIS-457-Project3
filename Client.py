@@ -94,7 +94,7 @@ def getData():
                     result.insert(tkinter.INSERT, info + "\n")
                 elif tempOps.get().upper() == "FAHRENHEIT":
                     con = info.split(" ")
-                    con[3] = format((float(con[3]) * (9.0/5.0) + 32), '.2f')
+                    con[1] = format((float(con[1]) * (9.0/5.0) + 32), '.2f')
                     result.insert(tkinter.INSERT, con + "\n")
 
     except ValueError:
