@@ -91,7 +91,7 @@ def clientThread(connection):
                     # Returns the latest temperature.
                     if command[1] == "LATEST":
                         print(dataList[len(dataList) - 2])
-                        connection.sendall(dataList[len(dataList) - 2].encode())
+                        connection.sendall(("LATEST: " + dataList[len(dataList) - 2]).encode())
 
                     # Returns values based on requested day.
                     elif command[1] == "SINGLE_DAY":
