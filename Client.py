@@ -5,6 +5,7 @@ import select
 from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
+from tkinter import PhotoImage
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -16,6 +17,7 @@ def connectServer():
     if len(servIP) > 0 and len(port):
         serverAddress = (str(servIP), int(port))
         sock.connect(serverAddress)
+        sock.sendall("CLIENT".encode())
         messagebox.showinfo("Connection", "Connected to central server")
         disButton["state"] = tkinter.NORMAL
         connButton["state"] = tkinter.DISABLED
@@ -101,6 +103,10 @@ def getData():
 def clearData():
     result.delete(1.0, tkinter.END)
 
+#Provide helpful information to the user
+def helpInfo():
+    messagebox.showinfo("HELP", "HELP!!!!!!!!!")
+
 #Generates the GUI window        
 gui = tkinter.Tk()
 gui.title("NANO Temp Client")
@@ -109,6 +115,10 @@ gui.geometry("550x450")
 ##################### CONNECTION #####################
 cLabel = tkinter.Label(gui, text="Connection", font=("-weighted bold", 13))
 cLabel.grid(column=0, row=0, padx=10, sticky='W',columnspan=6)
+
+image = PhotoImage(file="question.png")
+helpButton = tkinter.Button(gui, image=image, command=helpInfo, fg='red')
+helpButton.grid(column=4, row=0, sticky='E')
 
 #Gets IP adddress of server
 ipLabel = tkinter.Label(gui, text="Server IP Address: ")
